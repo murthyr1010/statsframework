@@ -11,14 +11,14 @@ public class Stats {
 
 	public static void main(String[] args) {
 		String buildId=args[0];
-		RestAssured.baseURI = "https://teamcity.bedford.progress.com/app/rest";
+		RestAssured.baseURI = "http://172.16.108.158/app/rest";
 		BasicAuthScheme auth = new BasicAuthScheme();
 
 		auth.setUserName("rmurthy");
 		auth.setPassword("rmurthy");
 
 		RestAssured.authentication = auth;
-		Response resp = RestAssured.given().relaxedHTTPSValidation().header("Accept", "Application/json").
+		Response resp = RestAssured.given().header("Accept", "Application/json").
 				when().get("/testOccurrences?locator=build:"+buildId+",count:100000");
 		//System.out.println(resp.asString());
 		JsonPath jsonPath1 = new JsonPath(resp.asString());
