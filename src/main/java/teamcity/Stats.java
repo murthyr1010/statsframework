@@ -14,8 +14,8 @@ public class Stats {
 		RestAssured.baseURI = "https://teamcity.bedford.progress.com/app/rest";
 		BasicAuthScheme auth = new BasicAuthScheme();
 
-		auth.setUserName("Qatest5");
-		auth.setPassword("4testQA5");
+		auth.setUserName("rmurthy");
+		auth.setPassword("rmurthy");
 
 		RestAssured.authentication = auth;
 		Response resp = RestAssured.given().relaxedHTTPSValidation().header("Accept", "Application/json").
