@@ -7,9 +7,17 @@ import io.restassured.http.ContentType;
 import io.restassured.path.json.JsonPath;
 import io.restassured.response.Response;
 
+import org.json.simple.JSONObject;
+
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.PrintWriter;
+
 public class Stats {
 
-	public static void main(String[] args) {
+	public static void main(String[] args) throws IOException {
 		String buildId=args[0];
 		RestAssured.baseURI = "http://172.16.108.158/app/rest";
 		BasicAuthScheme auth = new BasicAuthScheme();
@@ -57,6 +65,21 @@ public class Stats {
 		System.out.println("Total "+ (passed+failed+muted_count));
 		double pass_percent = ((float)passed/(float)total)*100;
 		System.out.println("Pass %"+pass_percent);
+		
+		JSONObject obj=new JSONObject();    
+		  obj.put("passed",passed);    
+		  obj.put("failed",failed);    
+		  obj.put("muted",muted_count);
+		  obj.put("total",total);
+		  obj.put("passpercent",pass_percent);
+		  
+		   System.out.print(obj); 
+		   File f = new File(System.getProperty("user.dir") + File.separatorChar + "src" + File.separator + "main"
+					+ File.separator + "java" + File.separator + "resources" + File.separator + "stats.json");
+		   FileWriter fileWriter = new FileWriter(f);
+		    PrintWriter printWriter = new PrintWriter(fileWriter);
+		    printWriter.print(obj);
+		    printWriter.close();
 		
 	}
 
