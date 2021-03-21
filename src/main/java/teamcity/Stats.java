@@ -22,7 +22,7 @@ public class Stats {
 				when().get("/testOccurrences?locator=build:"+buildId+",count:100000");
 		//System.out.println(resp.asString());
 		JsonPath jsonPath1 = new JsonPath(resp.asString());
-		//long executed_count = jsonPath1.getInt("count");
+		long executed_count = jsonPath1.getInt("count");
 		//System.out.println(executed_count);
 		ResultPojo result =RestAssured.given().relaxedHTTPSValidation().header("Accept", "Application/json").
 		when().get("/testOccurrences?locator=build:"+buildId+",count:100000").as(ResultPojo.class);
