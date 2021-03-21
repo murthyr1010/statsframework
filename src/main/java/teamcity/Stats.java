@@ -74,8 +74,10 @@ public class Stats {
 		  obj.put("passpercent",pass_percent);
 		  
 		   System.out.print(obj); 
+		  
 		   File f = new File(System.getProperty("user.dir") + File.separatorChar + "src" + File.separator + "main"
-					+ File.separator + "java" + File.separator + "resources" + File.separator + "stats.json");
+			+ File.separator + "stats.json");
+		   
 		   FileWriter fileWriter = new FileWriter(f);
 		    PrintWriter printWriter = new PrintWriter(fileWriter);
 		    printWriter.print(obj);
