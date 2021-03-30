@@ -91,7 +91,7 @@ public class Stats {
 		    
 		    String htmlCont = "<!DOCTYPE html>\r\n" + 
 		    		"<html>\r\n" + 
-		    		"<body>\r\n" + 
+		    		"<body style=\"background-color:Ivory;\">\r\n" + 
 		    		"\r\n" + logo+
 		    		"<h2>Tdriver Results</h2>\r\n" + 
 		    		"\r\n" + 
