@@ -28,7 +28,7 @@ public class Stats {
 		RestAssured.authentication = auth;
 		Response resp = RestAssured.given().header("Accept", "Application/json").
 				when().get("/testOccurrences?locator=build:"+buildId+",count:100000");
-		//System.out.println(resp.asString());
+		System.out.println(resp.asString());
 		JsonPath jsonPath1 = new JsonPath(resp.asString());
 		long executed_count = jsonPath1.getInt("count");
 		//System.out.println(executed_count);
@@ -66,7 +66,8 @@ public class Stats {
 		double pass_percent = ((float)passed/(float)total)*100;
 		System.out.println("Pass %"+pass_percent);
 		
-		JSONObject obj=new JSONObject();    
+		JSONObject obj=new JSONObject(); 
+		  obj.put("buildId",args[0]);
 		  obj.put("passed",passed);    
 		  obj.put("failed",failed);    
 		  obj.put("muted",muted_count);
@@ -109,7 +110,7 @@ public class Stats {
 		    printWriter2.print(htmlCont);
 		    printWriter2.close();
 		    
-		    
+		    MongoJavaClient.insertMongoDoc(obj.toJSONString());
 		
 	}
 
