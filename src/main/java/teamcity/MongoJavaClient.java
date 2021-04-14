@@ -11,7 +11,7 @@ public class MongoJavaClient {
 	public static void insertMongoDoc(String jsonStr) {
 
 		try {
-			MongoClientURI uri = new MongoClientURI("mongodb://dbadmin:dbadmin@127.0.0.1:27017/?authSource=admin");
+			MongoClientURI uri = new MongoClientURI("mongodb://dbadmin:dbadmin@127.0.0.1:27017/admin");
 			MongoClient mongoClient = new MongoClient(uri);
 			MongoDatabase db = mongoClient.getDatabase("teamcity");
 			MongoCollection<Document> collection = db.getCollection("teststats");
