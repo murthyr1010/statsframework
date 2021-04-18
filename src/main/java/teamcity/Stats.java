@@ -7,6 +7,12 @@ import io.restassured.http.ContentType;
 import io.restassured.path.json.JsonPath;
 import io.restassured.response.Response;
 
+import org.apache.commons.collections4.MultiMap;
+import org.apache.commons.collections4.MultiSet;
+import org.apache.commons.collections4.MultiValuedMap;
+import org.apache.commons.collections4.map.MultiKeyMap;
+import org.apache.commons.collections4.map.MultiValueMap;
+import org.apache.commons.collections4.multimap.ArrayListValuedHashMap;
 import org.json.simple.JSONObject;
 
 import java.io.File;
@@ -14,6 +20,10 @@ import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Iterator;
+import java.util.Set;
 
 public class Stats {
 
@@ -26,7 +36,7 @@ public class Stats {
 		auth.setPassword("rmurthy");
 
 		RestAssured.authentication = auth;
-		Response resp = RestAssured.given().header("Accept", "Application/json").
+		Response resp = RestAssured.given().relaxedHTTPSValidation().header("Accept", "Application/json").
 				when().get("/testOccurrences?locator=build:"+buildId+",count:100000");
 		System.out.println(resp.asString());
 		JsonPath jsonPath1 = new JsonPath(resp.asString());
@@ -53,7 +63,7 @@ public class Stats {
 		
 
 		Response resp1 = RestAssured.given().relaxedHTTPSValidation().header("Accept", "Application/json").
-				when().get("testOccurrences?locator=build:"+buildId+",count:10000,muted:true");
+				when().get("testOccurrences?locator=build:"+buildId+",count:100000,muted:true");
 		//System.out.println(resp1.asString());
 		JsonPath jsonPath2 = new JsonPath(resp1.asString());
 		long muted_count = jsonPath2.getInt("count");
@@ -111,7 +121,64 @@ public class Stats {
 		    printWriter2.close();
 		    
 		    MongoJavaClient.insertMongoDoc(obj.toJSONString());
-		
+		    
+		    ResultPojo result_test_suites =RestAssured.given().relaxedHTTPSValidation().header("Accept", "Application/json").
+		    		when().get("/testOccurrences?locator=build:"+buildId+",count:10000000").as(ResultPojo.class);
+		    //System.out.println(result_test_suites.asString());
+		    //MultiMap multiMap = new MultiValueMap();
+		    MultiValuedMap<String, String> multiMap = new ArrayListValuedHashMap<>();
+		    ArrayList<String> tests_with_no_suties = new ArrayList<String>();
+		    
+		    File f3 = new File(System.getProperty("user.dir") + File.separatorChar + "src" + File.separator + "main"
+					+ File.separator + "failures.html");
+		    FileWriter fileWriter3 = new FileWriter(f3);
+		    PrintWriter printWriter3 = new PrintWriter(fileWriter3);
+		    String htmlCont1 = "<!DOCTYPE html>\r\n" + 
+		    		"<html>\r\n" + 
+		    		"<body style=\"background-color:Ivory;\">\r\n"+ "<h2>Failed Tests By TestSuites Build Id "+ args[0]+"</h2>\r\n" ;
+		    for(int i=0;i<result_test_suites.getTestOccurrence().size();i++)
+			{
+				 if(result_test_suites.getTestOccurrence().get(i).getStatus().equals("FAILURE"))
+				{
+					 if(result_test_suites.getTestOccurrence().get(i).getName().contains(": ")) {
+					 //System.out.println(i);
+					//System.out.println(result_test_suites.getTestOccurrence().get(i).getName().substring(0,result_test_suites.getTestOccurrence().get(i).getName().indexOf(':')));
+					//System.out.println(result_test_suites.getTestOccurrence().get(i).getName().substring(result_test_suites.getTestOccurrence().get(i).getName().lastIndexOf(": ")+2,result_test_suites.getTestOccurrence().get(i).getName().length()-1));
+					 multiMap.put(result_test_suites.getTestOccurrence().get(i).getName().substring(0,result_test_suites.getTestOccurrence().get(i).getName().indexOf(':')),result_test_suites.getTestOccurrence().get(i).getName().substring(result_test_suites.getTestOccurrence().get(i).getName().lastIndexOf(": ")+2,result_test_suites.getTestOccurrence().get(i).getName().length()));
+					 }
+					 else {
+						 System.out.println("Tests without test suite "+result_test_suites.getTestOccurrence().get(i).getName());
+						 tests_with_no_suties.add(result_test_suites.getTestOccurrence().get(i).getName());
+					 }
+				}
+			}
+		    
+		    long cnt=0;
+		    Set<String> keys = multiMap.keySet();
+		    for(String key:keys) {
+		    	System.out.println("Key = " + key);
+		    	htmlCont1=htmlCont1+"<br><b>"+key+"</b><br>";
+		    	//System.out.println("Values= "+ multiMap.get(key)+"\n");
+		    	Iterator it = multiMap.get(key).iterator();
+		    	while(it.hasNext()) {
+		    		//System.out.println("Values "+it.next());
+		    		String str = (String) it.next();
+		    		htmlCont1=htmlCont1+" "+str+"<br>";
+		    		cnt++;
+		    	}
+		    }
+		    
+		    if(tests_with_no_suties.size()>0) {
+		    	htmlCont1=htmlCont1+"<br><b>Tests with no testsuites</b>";
+		    for(int i=0; i<tests_with_no_suties.size();i++) {
+		    	htmlCont1=htmlCont1+"<br>"+tests_with_no_suties.get(i);
+		    }
+		    }
+		    
+		    printWriter3.print(htmlCont1+"</body>\r\n" + "</html>\r\n");
+		    printWriter3.close();
+		    
+		    System.out.println("Total Failures"+ (cnt+tests_with_no_suties.size()));
 	}
 
 }
